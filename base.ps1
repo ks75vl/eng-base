@@ -77,7 +77,6 @@ function Build-Go {
     if ($GOARCH) { $envCmd += "GOARCH=$GOARCH " }
     Write-Green "Executing:$envCmd go build -o $OutputPath"
     try {
-        Set-Location $SourceDir
         if ($envCmd) {
             $envVars = @{}
             if ($GOOS) { $envVars["GOOS"] = $GOOS }
