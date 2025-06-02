@@ -72,12 +72,12 @@ function Build-Go {
         [Parameter(Mandatory = $false)][string]$GOARCH = ""
     )
     Write-Cyan "Building $SourceDir ..."
-    $envCmd = " "
+    $envCmd = ""
     if ($GOOS) { $envCmd += "GOOS=$GOOS " }
     if ($GOARCH) { $envCmd += "GOARCH=$GOARCH " }
     Write-Green "Executing:$envCmd go build -o $OutputPath"
     try {
-        if ($envCmd -ne " ") {
+        if ($envCmd -ne "") {
             $envVars = @{}
             if ($GOOS) { $envVars["GOOS"] = $GOOS }
             if ($GOARCH) { $envVars["GOARCH"] = $GOARCH }
