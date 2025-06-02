@@ -95,6 +95,22 @@ function Build-Go {
     }
 }
 
+function Invoke-Go {
+    param (
+        [Parameter(Mandatory = $true)][string]$SourceDir,
+        [Parameter(Mandatory = $false)][string]$Args = ""
+    )
+    Write-Cyan "Running Go binary $BinaryPath..."
+    Write-Green "Executing: go run $BinaryPath $Args"
+    try {
+        & go run $BinaryPath $Args -ErrorAction Stop
+    }
+    catch {
+        Write-Red "Error running Go binary: $_"
+        exit 1
+    }
+}
+
 # Build Meson project
 function Build-Meson {
     param (
