@@ -1,6 +1,8 @@
 # base.ps1
 # Utility functions for project tools
 
+$ErrorActionPreference = 'Stop'
+
 # Logging functions
 function Write-Green {
     param (
@@ -34,7 +36,7 @@ function Push-File {
     Write-Cyan "Pushing file $LocalPath to $RemoteUser@${RemoteHost}:$RemotePath..."
     Write-Green "Executing: scp $LocalPath $RemoteUser@${RemoteHost}:$RemotePath"
     try {
-        scp $LocalPath "$RemoteUser@${RemoteHost}:$RemotePath" -ErrorAction Stop
+        scp $LocalPath "$RemoteUser@${RemoteHost}:$RemotePath"
     }
     catch {
         Write-Red "Error pushing file: $_"
@@ -53,7 +55,7 @@ function Invoke-Binary {
     Write-Cyan "Running binary $BinaryPath on $RemoteUser@$RemoteHost..."
     Write-Green "Executing: ssh $RemoteUser@$RemoteHost $BinaryPath $Args"
     try {
-        ssh "$RemoteUser@$RemoteHost" "$BinaryPath $Args" -ErrorAction Stop
+        ssh "$RemoteUser@$RemoteHost" "$BinaryPath $Args"
     }
     catch {
         Write-Red "Error running binary: $_"
@@ -80,10 +82,10 @@ function Build-Go {
             $envVars = @{}
             if ($GOOS) { $envVars["GOOS"] = $GOOS }
             if ($GOARCH) { $envVars["GOARCH"] = $GOARCH }
-            & { $envVars.GetEnumerator() | ForEach-Object { Set-Item -Path "env:$($_.Key)" -Value $_.Value }; go build -o $OutputPath -ErrorAction Stop }
+            & { $envVars.GetEnumerator() | ForEach-Object { Set-Item -Path "env:$($_.Key)" -Value $_.Value }; go build -o $OutputPath }
         }
         else {
-            go build -o $OutputPath -ErrorAction Stop
+            go build -o $OutputPath
         }
     }
     catch {
@@ -103,7 +105,7 @@ function Invoke-Go {
     Write-Cyan "Running Go binary $BinaryPath..."
     Write-Green "Executing: go run $BinaryPath $Args"
     try {
-        & go run $BinaryPath $Args -ErrorAction Stop
+        & go run $BinaryPath $Args
     }
     catch {
         Write-Red "Error running Go binary: $_"
@@ -122,7 +124,7 @@ function Build-Meson {
     if (-not (Test-Path $BuildDir)) {
         Write-Green "Executing: meson setup $BuildDir $SourceDir"
         try {
-            meson setup $BuildDir $SourceDir -ErrorAction Stop
+            meson setup $BuildDir $SourceDir
         }
         catch {
             Write-Red "Error setting up Meson: $_"
@@ -134,7 +136,7 @@ function Build-Meson {
     }
     Write-Green "Executing: ninja -C $BuildDir"
     try {
-        ninja -C $BuildDir -ErrorAction Stop
+        ninja -C $BuildDir
     }
     catch {
         Write-Red "Error building with Ninja: $_"
