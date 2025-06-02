@@ -30,13 +30,14 @@ function Push-File {
     param (
         [Parameter(Mandatory = $true)][string]$LocalPath,
         [Parameter(Mandatory = $true)][string]$RemoteHost,
+        [Parameter(Mandatory = $false)][Int16]$RemotePort = 22,
         [Parameter(Mandatory = $true)][string]$RemoteUser,
         [Parameter(Mandatory = $true)][string]$RemotePath
     )
     Write-Cyan "Pushing file $LocalPath to $RemoteUser@${RemoteHost}:$RemotePath..."
-    Write-Green "Executing: scp $LocalPath $RemoteUser@${RemoteHost}:$RemotePath"
+    Write-Green "Executing: scp -P $RemotePort $LocalPath $RemoteUser@${RemoteHost}:$RemotePath"
     try {
-        scp $LocalPath "$RemoteUser@${RemoteHost}:$RemotePath"
+        scp -P $RemotePort $LocalPath "$RemoteUser@${RemoteHost}:$RemotePath"
     }
     catch {
         Write-Red "Error pushing file: $_"
@@ -48,14 +49,15 @@ function Push-File {
 function Invoke-Binary {
     param (
         [Parameter(Mandatory = $true)][string]$RemoteHost,
+        [Parameter(Mandatory = $false)][Int16]$RemotePort = 22,
         [Parameter(Mandatory = $true)][string]$RemoteUser,
         [Parameter(Mandatory = $true)][string]$BinaryPath,
         [Parameter(Mandatory = $false)][string]$Args = ""
     )
     Write-Cyan "Running binary $BinaryPath on $RemoteUser@$RemoteHost..."
-    Write-Green "Executing: ssh $RemoteUser@$RemoteHost $BinaryPath $Args"
+    Write-Green "Executing: ssh -p $RemotePort $RemoteUser@$RemoteHost $BinaryPath $Args"
     try {
-        ssh "$RemoteUser@$RemoteHost" "$BinaryPath $Args"
+        ssh -p $RemotePort "$RemoteUser@$RemoteHost" "$BinaryPath $Args"
     }
     catch {
         Write-Red "Error running binary: $_"
@@ -73,15 +75,15 @@ function Build-Go {
     )
     Write-Cyan "Building $SourceDir ..."
     $envCmd = ""
-    if ($GOOS) { $envCmd += "GOOS=$GOOS " }
-    if ($GOARCH) { $envCmd += "GOARCH=$GOARCH " }
+    if ($GOOS) { $envCmd += " `$env:GOOS='$GOOS';" }
+    if ($GOARCH) { $envCmd += " `$env:GOARCH='$GOARCH';" }
     Write-Green "Executing:$envCmd go build -o $OutputPath"
     try {
         if ($envCmd -ne "") {
-            $envVars = @{}
-            if ($GOOS) { $envVars["GOOS"] = $GOOS }
-            if ($GOARCH) { $envVars["GOARCH"] = $GOARCH }
-            & { $envVars.GetEnumerator() | ForEach-Object { Set-Item -Path "env:$($_.Key)" -Value $_.Value }; go build -o $OutputPath }
+            # $envVars = @{}
+            # if ($GOOS) { $envVars["GOOS"] = $GOOS }
+            # if ($GOARCH) { $envVars["GOARCH"] = $GOARCH }
+            Invoke-Expression "$envCmd; go build -o $OutputPath"
         }
         else {
             go build -o $OutputPath
