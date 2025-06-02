@@ -91,9 +91,6 @@ function Build-Go {
         Write-Red "Error building: $_"
         exit 1
     }
-    finally {
-        Set-Location $PSScriptRoot
-    }
 }
 
 function Invoke-Go {
