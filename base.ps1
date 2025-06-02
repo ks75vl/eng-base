@@ -71,11 +71,11 @@ function Build-Go {
         [Parameter(Mandatory = $false)][string]$GOOS = "",
         [Parameter(Mandatory = $false)][string]$GOARCH = ""
     )
-    Write-Cyan "Building Go project in $SourceDir..."
-    $envCmd = ""
+    Write-Cyan "Building $SourceDir ..."
+    $envCmd = " "
     if ($GOOS) { $envCmd += "GOOS=$GOOS " }
     if ($GOARCH) { $envCmd += "GOARCH=$GOARCH " }
-    Write-Green "Executing: $envCmd go build -o $OutputPath"
+    Write-Green "Executing:$envCmd go build -o $OutputPath"
     try {
         Set-Location $SourceDir
         if ($envCmd) {
@@ -89,7 +89,7 @@ function Build-Go {
         }
     }
     catch {
-        Write-Red "Error building Go project: $_"
+        Write-Red "Error building: $_"
         exit 1
     }
     finally {
@@ -102,13 +102,13 @@ function Invoke-Go {
         [Parameter(Mandatory = $true)][string]$SourceDir,
         [Parameter(Mandatory = $false)][string]$Args = ""
     )
-    Write-Cyan "Running Go binary $BinaryPath..."
-    Write-Green "Executing: go run $BinaryPath $Args"
+    Write-Cyan "Running $SourceDir ..."
+    Write-Green "Executing: go run $SourceDir $Args"
     try {
-        & go run $BinaryPath $Args
+        & go run $SourceDir $Args
     }
     catch {
-        Write-Red "Error running Go binary: $_"
+        Write-Red "Error running: $_"
         exit 1
     }
 }
